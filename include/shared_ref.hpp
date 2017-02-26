@@ -41,6 +41,10 @@ public:
     T * operator->() const;
 
     void swap(shared_ref<T> &other);
+
+    template <typename Archive>
+    void serialize(Archive & archive,
+        const uint32_t version);
 };
 
 
@@ -117,4 +121,13 @@ template <typename T>
 void shared_ref<T>::swap(shared_ref<T> &other)
 {
     ptr.swap(other.ptr);
+}
+
+
+template <typename T>
+template <typename Archive>
+void shared_ref<T>::serialize(Archive & archive,
+    const uint32_t version)
+{
+    archive(ptr);
 }
