@@ -30,10 +30,12 @@ class shared_ref
 protected:
     std::shared_ptr<T> ptr;
 
+    // make protected for inherited classes
+    shared_ref() = default;
+
 public:
     typedef T element_type;
 
-    shared_ref() = delete;
     shared_ref(const shared_ref<T>&) = default;
     shared_ref<T> & operator=(const shared_ref<T>&) = default;
     shared_ref(shared_ref<T> &&other);
