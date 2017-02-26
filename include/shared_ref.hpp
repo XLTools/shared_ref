@@ -7,7 +7,17 @@
 
 #pragma once
 
+#include <cassert>
 #include <memory>
+
+
+namespace ref
+{
+// MACROS
+// ------
+
+#define CHECK_NULLPTR(x)                                                \
+    assert(bool(x) && "Pointer cannot be null.");
 
 
 // OBJECTS
@@ -29,8 +39,34 @@ public:
     shared_ref(shared_ref<T> &&other);
     shared_ref<T> & operator=(shared_ref<T> &&other);
 
-    template <typename... Ts>
-    shared_ref(Ts&&... ts);
+    template <typename Y>
+    shared_ref(Y *ptr);
+
+    template <typename Y, typename Deleter>
+    shared_ref(Y *ptr, Deleter d);
+
+    template <typename Y, typename Deleter, typename Alloc>
+    shared_ref(Y *ptr, Deleter d, Alloc alloc);
+
+    shared_ref(const std::shared_ptr<T> &ptr);
+
+    template <typename Y>
+    shared_ref(const std::shared_ptr<Y> &ptr);
+
+    shared_ref(std::shared_ptr<T> &&ptr);
+
+    template <typename Y>
+    shared_ref(std::shared_ptr<Y> &&ptr);
+
+    shared_ref<T> & operator=(const std::shared_ptr<T> &ptr);
+
+    template <typename Y>
+    shared_ref<T> & operator=(const std::shared_ptr<Y> &ptr);
+
+    shared_ref<T> & operator=(std::shared_ptr<T> &&ptr);
+
+    template <typename Y>
+    shared_ref<T> & operator=(std::shared_ptr<Y> &&ptr);
 
     long use_count() const;
     bool unique() const;
@@ -44,16 +80,116 @@ public:
 };
 
 
+// FUNCTIONS
+// ---------
+
+
+template <typename T, typename... Ts>
+shared_ref<T> make_shared(Ts&&... ts)
+{
+    return shared_ref<T>(std::make_shared<T>(std::forward<Ts>(ts)...));
+}
+
+
 // IMPLEMENTATION
 // --------------
 
 
 template <typename T>
-shared_ref<T>::shared_ref(shared_ref<T> &&other):
-    ptr(std::make_shared<T>())
+template <typename Y>
+shared_ref<T>::shared_ref(Y *ptr)
 {
-    swap(other);
+    CHECK_NULLPTR(ptr);
+    this->ptr.reset(ptr);
 }
+
+
+template <typename T>
+template <typename Y, typename Deleter>
+shared_ref<T>::shared_ref(Y *ptr, Deleter d)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr.reset(ptr, d);
+}
+
+
+template <typename T>
+template <typename Y, typename Deleter, typename Alloc>
+shared_ref<T>::shared_ref(Y *ptr, Deleter d, Alloc alloc)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr.reset(ptr, d, alloc);
+}
+
+template <typename T>
+shared_ref<T>::shared_ref(const std::shared_ptr<T> &ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = ptr;
+}
+
+template <typename T>
+template <typename Y>
+shared_ref<T>::shared_ref(const std::shared_ptr<Y> &ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = ptr;
+}
+
+template <typename T>
+shared_ref<T>::shared_ref(std::shared_ptr<T> &&ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = std::move(ptr);
+}
+
+template <typename T>
+template <typename Y>
+shared_ref<T>::shared_ref(std::shared_ptr<Y> &&ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = std::move(ptr);
+}
+
+
+template <typename T>
+shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<T> &ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = ptr;
+}
+
+
+template <typename T>
+template <typename Y>
+shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<Y> &ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = ptr;
+}
+
+
+template <typename T>
+shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<T> &&ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = std::move(ptr);
+}
+
+
+template <typename T>
+template <typename Y>
+shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<Y> &&ptr)
+{
+    CHECK_NULLPTR(ptr);
+    this->ptr = std::move(ptr);
+}
+
+
+template <typename T>
+shared_ref<T>::shared_ref(shared_ref<T> &&other):
+    ptr(other.ptr)
+{}
 
 
 template <typename T>
@@ -62,13 +198,6 @@ shared_ref<T> & shared_ref<T>::operator=(shared_ref<T> &&other)
     swap(other);
     return *this;
 }
-
-
-template <typename T>
-template <typename... Ts>
-shared_ref<T>::shared_ref(Ts&&... ts):
-    ptr(std::make_shared<T>(std::forward<Ts>(ts)...))
-{}
 
 
 template <typename T>
@@ -118,3 +247,5 @@ void shared_ref<T>::swap(shared_ref<T> &other)
 {
     ptr.swap(other.ptr);
 }
+
+}   /* ref */
