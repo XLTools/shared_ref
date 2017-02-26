@@ -28,14 +28,12 @@ template <typename T>
 class shared_ref
 {
 protected:
-    std::shared_ptr<T> ptr;
-
-    // make protected for inherited classes
-    shared_ref() = default;
+    std::shared_ptr<T> ptr_;
 
 public:
     typedef T element_type;
 
+    shared_ref() = delete;
     shared_ref(const shared_ref<T>&) = default;
     shared_ref<T> & operator=(const shared_ref<T>&) = default;
     shared_ref(shared_ref<T> &&other);
@@ -74,6 +72,7 @@ public:
     bool unique() const;
 
     T & get() const;
+    std::shared_ptr<T> ptr() const;
     operator T&() const;
     T & operator*() const;
     T * operator->() const;
@@ -106,7 +105,7 @@ template <typename Y>
 shared_ref<T>::shared_ref(Y *ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr.reset(ptr);
+    ptr_.reset(ptr);
 }
 
 
@@ -115,7 +114,7 @@ template <typename Y, typename Deleter>
 shared_ref<T>::shared_ref(Y *ptr, Deleter d)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr.reset(ptr, d);
+    ptr_.reset(ptr, d);
 }
 
 
@@ -124,14 +123,14 @@ template <typename Y, typename Deleter, typename Alloc>
 shared_ref<T>::shared_ref(Y *ptr, Deleter d, Alloc alloc)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr.reset(ptr, d, alloc);
+    ptr_.reset(ptr, d, alloc);
 }
 
 template <typename T>
 shared_ref<T>::shared_ref(const std::shared_ptr<T> &ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = ptr;
+    ptr_ = ptr;
 }
 
 template <typename T>
@@ -139,14 +138,14 @@ template <typename Y>
 shared_ref<T>::shared_ref(const std::shared_ptr<Y> &ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = ptr;
+    ptr_ = ptr;
 }
 
 template <typename T>
 shared_ref<T>::shared_ref(std::shared_ptr<T> &&ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = std::move(ptr);
+    ptr_ = std::move(ptr);
 }
 
 template <typename T>
@@ -154,7 +153,7 @@ template <typename Y>
 shared_ref<T>::shared_ref(std::shared_ptr<Y> &&ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = std::move(ptr);
+    ptr_ = std::move(ptr);
 }
 
 
@@ -162,7 +161,7 @@ template <typename T>
 shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<T> &ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = ptr;
+    ptr_ = ptr;
 }
 
 
@@ -171,7 +170,7 @@ template <typename Y>
 shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<Y> &ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = ptr;
+    ptr_ = ptr;
 }
 
 
@@ -179,7 +178,7 @@ template <typename T>
 shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<T> &&ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = std::move(ptr);
+    ptr_ = std::move(ptr);
 }
 
 
@@ -188,13 +187,13 @@ template <typename Y>
 shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<Y> &&ptr)
 {
     CHECK_NULLPTR(ptr);
-    this->ptr = std::move(ptr);
+    ptr_ = std::move(ptr);
 }
 
 
 template <typename T>
 shared_ref<T>::shared_ref(shared_ref<T> &&other):
-    ptr(other.ptr)
+    ptr_(other.ptr)
 {}
 
 
@@ -209,21 +208,28 @@ shared_ref<T> & shared_ref<T>::operator=(shared_ref<T> &&other)
 template <typename T>
 long shared_ref<T>::use_count() const
 {
-    return ptr.use_count();
+    return ptr_.use_count();
 }
 
 
 template <typename T>
 bool shared_ref<T>::unique() const
 {
-    return ptr.unique();
+    return ptr_.unique();
 }
 
 
 template <typename T>
 T & shared_ref<T>::get() const
 {
-    return *ptr;
+    return *ptr_;
+}
+
+
+template <typename T>
+std::shared_ptr<T> shared_ref<T>::ptr() const
+{
+    return ptr_;
 }
 
 
@@ -244,14 +250,14 @@ T & shared_ref<T>::operator*() const
 template <typename T>
 T * shared_ref<T>::operator->() const
 {
-    return ptr.get();
+    return ptr_.get();
 }
 
 
 template <typename T>
 void shared_ref<T>::swap(shared_ref<T> &other)
 {
-    ptr.swap(other.ptr);
+    ptr_.swap(other.ptr_);
 }
 
 }   /* ref */
