@@ -14,12 +14,16 @@ shared_ref is a non-nullable, reference-counted reference wrapper.
 shared_ref can used similarly to shared_ptr, however, it cannot inherit existing pointers.
 
 ```cpp
+#include <shared_ref.hpp>
+#include <iostream>
 
-shared_ref<int> ref(1);
-shared_ref<int> copy(ref);
-int value(copy);
+int main(void)
+{
+    auto value = ref::make_shared<int>(1);
+    auto copy(value);
+    std::cout << "Value is: " << value.get() << std::endl;
+}
 ```
-
 
 ## Contributor Guidelines
 
