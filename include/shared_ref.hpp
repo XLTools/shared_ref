@@ -77,6 +77,10 @@ public:
     T * operator->() const;
 
     void swap(shared_ref<T> &other);
+
+    template <typename Archive>
+    void serialize(Archive & archive,
+        const uint32_t version);
 };
 
 
