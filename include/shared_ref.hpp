@@ -193,7 +193,7 @@ shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<Y> &&ptr)
 
 template <typename T>
 shared_ref<T>::shared_ref(shared_ref<T> &&other):
-    ptr_(other.ptr)
+    ptr_(other.ptr_)
 {}
 
 
