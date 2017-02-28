@@ -194,6 +194,7 @@ shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<T> &ptr)
 {
     CHECK_NULLPTR(ptr);
     ptr_ = ptr;
+    return *this;
 }
 
 
@@ -203,6 +204,7 @@ shared_ref<T> & shared_ref<T>::operator=(const std::shared_ptr<Y> &ptr)
 {
     CHECK_NULLPTR(ptr);
     ptr_ = ptr;
+    return *this;
 }
 
 
@@ -211,6 +213,7 @@ shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<T> &&ptr)
 {
     CHECK_NULLPTR(ptr);
     ptr_ = std::move(ptr);
+    return *this;
 }
 
 
@@ -220,6 +223,7 @@ shared_ref<T> & shared_ref<T>::operator=(std::shared_ptr<Y> &&ptr)
 {
     CHECK_NULLPTR(ptr);
     ptr_ = std::move(ptr);
+    return *this;
 }
 
 
