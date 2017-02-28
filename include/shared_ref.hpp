@@ -68,6 +68,38 @@ public:
     template <typename Y>
     shared_ref<T> & operator=(std::shared_ptr<Y> &&ptr);
 
+    // RELATIONAL OPERATORS
+    bool operator==(const shared_ref<T> &other) const
+    {
+        return ptr_ == other.ptr_;
+    }
+
+    bool operator!=(const shared_ref<T> &other) const
+    {
+        return !operator==(other);
+    }
+
+    bool operator<(const shared_ref<T> &other) const
+    {
+        return ptr_ < other.ptr_;
+    }
+
+    bool operator<=(const shared_ref<T> &other) const
+    {
+        return !(other < *this);
+    }
+
+    bool operator>(const shared_ref<T> &other) const
+    {
+        return other < *this;
+    }
+
+    bool operator>=(const shared_ref<T> &other) const
+    {
+        return !operator<(other);
+    }
+
+    // DATA
     long use_count() const;
     bool unique() const;
 
